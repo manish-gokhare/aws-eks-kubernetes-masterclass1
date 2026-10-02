@@ -21,6 +21,13 @@ eksctl create cluster --name=eksdemo1 \
                       --zones=us-east-1a,us-east-1b \
                       --without-nodegroup 
 
+# Check the correct region is set.
+  aws configure get region
+
+# Set the correct region.
+
+aws configure set region us-east-1
+
 # Get List of clusters
 eksctl get cluster                  
 ```
