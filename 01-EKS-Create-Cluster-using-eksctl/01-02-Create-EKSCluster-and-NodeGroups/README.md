@@ -65,8 +65,29 @@ Control Plane
    └── Scheduler logs
               ↓
        CloudWatch Logs
-...
 
+## Step-02: Create & Associate IAM OIDC Provider for our EKS Cluster
+- To enable and use AWS IAM roles for Kubernetes service accounts on our EKS cluster, we must create &  associate OIDC identity provider.
+- The purpose is to create a trust relationship between EKS and AWS IAM.
+- It allows a Kubernetes Pod/ServiceAccount to assume an AWS IAM Role without storing AWS access keys inside the Pod.
+- 
+- To do so using `eksctl` we can use the  below command. 
+- Use latest eksctl version (as on today the latest version is `0.21.0`)
+
+```
+# Template
+eksctl utils associate-iam-oidc-provider \
+    --region region-code \
+    --cluster <cluter-name> \
+    --approve
+
+# Replace with region & cluster name
+eksctl utils associate-iam-oidc-provider \
+    --region us-east-1 \
+    --cluster eksdemo1 \
+    --approve
+
+```
 ```
 
 ### EKS Pod-to-AWS IAM Flow
@@ -94,26 +115,6 @@ AWS Services
 
 Important: The OIDC provider itself does not have the IAM role/policies. The IAM Role has the policies; OIDC enables AWS to trust the Kubernetes ServiceAccount.
 
-```
-## Step-02: Create & Associate IAM OIDC Provider for our EKS Cluster
-- To enable and use AWS IAM roles for Kubernetes service accounts on our EKS cluster, we must create &  associate OIDC identity provider.
-- The purpose is to create a trust relationship between EKS and AWS IAM.
-- It allows a Kubernetes Pod/ServiceAccount to assume an AWS IAM Role without storing AWS access keys inside the Pod.
-- 
-- To do so using `eksctl` we can use the  below command. 
-- Use latest eksctl version (as on today the latest version is `0.21.0`)
-
-# Template
-eksctl utils associate-iam-oidc-provider \
-    --region region-code \
-    --cluster <cluter-name> \
-    --approve
-
-# Replace with region & cluster name
-eksctl utils associate-iam-oidc-provider \
-    --region us-east-1 \
-    --cluster eksdemo1 \
-    --approve
 
 
 
