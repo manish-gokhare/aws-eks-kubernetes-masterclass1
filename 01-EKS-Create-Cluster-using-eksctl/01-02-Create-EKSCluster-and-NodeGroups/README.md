@@ -15,11 +15,21 @@
 ## Step-01: Create EKS Cluster using eksctl
 - It will take 15 to 20 minutes to create the Cluster Control Plane 
 ```
-# Create Cluster
+
+# If --version is not specified, eksctl uses the default Kubernetes version
+# supported by the current EKS/eksctl configuration, which may not be the latest version.
+# For example, if the current latest version is 1.36, the default could be an older version
+# depending on EKS version availability and eksctl defaults.
+
+# Explicitly specify the Kubernetes version to ensure the cluster is created with 1.36.
+# --without-nodegroup creates only the EKS control plane; worker nodes can be added later.
+
+# Create EKS Cluster
 eksctl create cluster --name=eksdemo1 \
                       --region=us-east-1 \
                       --zones=us-east-1a,us-east-1b \
-                      --without-nodegroup 
+                      --version=1.36 \
+                      --without-nodegroup
 
 # Check the correct region is set.
   aws configure get region
@@ -35,9 +45,36 @@ eksctl get cluster
 
 ## Step-02: Create & Associate IAM OIDC Provider for our EKS Cluster
 - To enable and use AWS IAM roles for Kubernetes service accounts on our EKS cluster, we must create &  associate OIDC identity provider.
+- The purpose is to create a trust relationship between EKS and AWS IAM.
+- It allows a Kubernetes Pod/ServiceAccount to assume an AWS IAM Role without storing AWS access keys inside the Pod.
+- 
 - To do so using `eksctl` we can use the  below command. 
 - Use latest eksctl version (as on today the latest version is `0.21.0`)
-```                   
+```
+```
+Pod
+ ↓
+Kubernetes ServiceAccount
+ ↓
+OIDC Provider (trust)
+ ↓
+IAM Role
+ ↓
+IAM Policies
+ ↓
+S3 / SQS / DynamoDB / etc.
+
+- Pod uses a Kubernetes ServiceAccount.
+- That ServiceAccount is configured to use a specific AWS IAM Role.
+- The OIDC provider establishes trust between EKS and AWS IAM.
+- The IAM Role has one or more IAM policies attached.
+- Any Pod using that ServiceAccount can obtain credentials for that IAM Role and therefore gets the permissions defined by   those policies.
+
+Important: The OIDC provider itself does not have the IAM role/policies. The IAM Role has the policies; OIDC enables AWS to trust the Kubernetes ServiceAccount.
+
+```
+
+
 # Template
 eksctl utils associate-iam-oidc-provider \
     --region region-code \
@@ -65,7 +102,7 @@ eksctl utils associate-iam-oidc-provider \
 eksctl create nodegroup --cluster=eksdemo1 \
                         --region=us-east-1 \
                         --name=eksdemo1-ng-public1 \
-                        --node-type=t3.medium \
+                        --node-type=c7i-flex.large \
                         --nodes=2 \
                         --nodes-min=2 \
                         --nodes-max=4 \
