@@ -51,18 +51,23 @@ eksctl get cluster
 - To do so using `eksctl` we can use the  below command. 
 - Use latest eksctl version (as on today the latest version is `0.21.0`)
 ```
-```
+
+### EKS Pod-to-AWS IAM Flow
+
+```text
 Pod
  ↓
 Kubernetes ServiceAccount
  ↓
-OIDC Provider (trust)
+OIDC Provider (Trust)
  ↓
-IAM Role
+AWS IAM Role
  ↓
 IAM Policies
  ↓
-S3 / SQS / DynamoDB / etc.
+AWS Services
+(S3 / SQS / DynamoDB / etc.)
+
 
 - Pod uses a Kubernetes ServiceAccount.
 - That ServiceAccount is configured to use a specific AWS IAM Role.
@@ -72,7 +77,7 @@ S3 / SQS / DynamoDB / etc.
 
 Important: The OIDC provider itself does not have the IAM role/policies. The IAM Role has the policies; OIDC enables AWS to trust the Kubernetes ServiceAccount.
 
-```
+
 
 
 # Template
