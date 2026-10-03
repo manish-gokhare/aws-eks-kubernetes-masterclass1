@@ -65,6 +65,7 @@ Control Plane
    └── Scheduler logs
               ↓
        CloudWatch Logs
+```
 
 ## Step-02: Create & Associate IAM OIDC Provider for our EKS Cluster
 - To enable and use AWS IAM roles for Kubernetes service accounts on our EKS cluster, we must create &  associate OIDC identity provider.
@@ -74,23 +75,24 @@ Control Plane
 - To do so using `eksctl` we can use the  below command. 
 - Use latest eksctl version (as on today the latest version is `0.21.0`)
 
-# Template
+#Template
+
 ```
 eksctl utils associate-iam-oidc-provider \
     --region region-code \
     --cluster <cluter-name> \
     --approve
-```
-# Replace with region & cluster name
 
-```
+#Replace with region & cluster name
+
 eksctl utils associate-iam-oidc-provider \
     --region us-east-1 \
     --cluster eksdemo1 \
     --approve
+
 ```
 
-### EKS Pod-to-AWS IAM Flow
+###EKS Pod-to-AWS IAM Flow
 
 ```text
 Pod
@@ -189,9 +191,32 @@ kubectl get nodes -o wide
 kubectl config view --minify
 ```
 
-### Verify Worker Node IAM Role and list of Policies
-- Go to Services -> EC2 -> Worker Nodes
-- Click on **IAM Role associated to EC2 Worker Nodes**
+### Verify Worker Node IAM Role and Attached Policies
+
+- Go to **AWS Console → EC2 → Instances**.
+- Select an EKS worker node.
+- Under **IAM Role**, click the role associated with the worker node.
+- Review the IAM policies attached to the role.
+
+> **Important:** Assigning an IAM role to the EC2 worker node does NOT mean that every Pod automatically gets those permissions.
+>
+> Pods can potentially access the node's IAM permissions depending on the credential mechanism and configuration. Therefore, for application-specific AWS permissions, the recommended approach is to use **EKS Pod Identity** or **IAM Roles for Service Accounts (IRSA)** and associate the permissions with a specific Kubernetes ServiceAccount.
+
+```text
+EC2 Worker Node
+      │
+      └── IAM Role
+             │
+             └── Node-level permissions
+
+Pod
+ │
+ └── Kubernetes ServiceAccount
+          │
+          └── Pod-specific IAM Role
+                    │
+                    └── S3 / SQS / DynamoDB
+
 
 ### Verify Security Group Associated to Worker Nodes
 - Go to Services -> EC2 -> Worker Nodes
