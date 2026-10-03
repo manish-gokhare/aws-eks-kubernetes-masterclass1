@@ -149,7 +149,15 @@ eksctl create nodegroup --cluster=eksdemo1 \
                         --full-ecr-access \
                         --appmesh-access \
                         --alb-ingress-access
+
+# open the nodeport
+aws ec2 authorize-security-group-ingress \
+  --group-id sg-0cc413880096a7ec9 # check SG ID from EKS \
+  --protocol tcp \
+  --port 30000-32767 \
+  --cidr 0.0.0.0/0
 ```
+
 
 
 ## Step-05: Verify Cluster & Nodes
