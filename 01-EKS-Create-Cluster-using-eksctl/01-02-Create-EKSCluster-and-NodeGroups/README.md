@@ -117,7 +117,7 @@ AWS Services
 
 Important: The OIDC provider itself does not have the IAM role/policies. The IAM Role has the policies; OIDC enables AWS to trust the Kubernetes ServiceAccount.
 
-
+```
 
 
 
@@ -128,9 +128,11 @@ Important: The OIDC provider itself does not have the IAM role/policies. The IAM
 
 ## Step-04: Create Node Group with additional Add-Ons in Public Subnets
 - These add-ons will create the respective IAM policies for us automatically within our Node Group role.
- ```
-# Create Public Node Group  (To create in Private , need to explicitly used privateNetworking=true)
 
+#Create Public Node Group  (To create in Private , need to explicitly used privateNetworking=true)
+
+
+```
 eksctl create nodegroup --cluster=eksdemo1 \
                         --region=us-east-1 \
                         --name=eksdemo1-ng-public1 \
@@ -146,8 +148,9 @@ eksctl create nodegroup --cluster=eksdemo1 \
                         --external-dns-access \
                         --full-ecr-access \
                         --appmesh-access \
-                        --alb-ingress-access 
+                        --alb-ingress-access
 ```
+
 
 ## Step-05: Verify Cluster & Nodes
 
