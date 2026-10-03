@@ -39,7 +39,14 @@ eksctl create cluster --name=eksdemo1 \
 aws configure set region us-east-1
 
 # Get List of clusters
-eksctl get cluster                  
+eksctl get cluster
+
+# EKS creates AWS-managed control-plane infrastructure, and the cluster is associated with subnets in your VPC. 
+
+aws eks describe-cluster \
+  --name eksdemo1 \
+  --region us-east-1 \
+  --query 'cluster.resourcesVpcConfig'                 
 ```
 
 
@@ -103,7 +110,8 @@ eksctl utils associate-iam-oidc-provider \
 ## Step-04: Create Node Group with additional Add-Ons in Public Subnets
 - These add-ons will create the respective IAM policies for us automatically within our Node Group role.
  ```
-# Create Public Node Group   
+# Create Public Node Group  (To create in Private , need to explicitly used privateNetworking=true)
+
 eksctl create nodegroup --cluster=eksdemo1 \
                         --region=us-east-1 \
                         --name=eksdemo1-ng-public1 \
@@ -133,6 +141,21 @@ eksctl create nodegroup --cluster=eksdemo1 \
 
 ### Verify Cluster, NodeGroup in EKS Management Console
 - Go to Services -> Elastic Kubernetes Service -> eksdemo1
+
+###  Get VPV ID for eksdemo1 EKS cluster
+aws eks describe-cluster \
+  --name eksdemo1 \
+  --region us-east-1 \
+  --query 'cluster.resourcesVpcConfig.vpcId' \
+  --output text
+
+### Use the VPC ID to list the subnet.
+
+aws ec2 describe-subnets \
+  --filters Name=vpc-id,Values=<VPC_ID> \
+  --query 'Subnets[*].[SubnetId,AvailabilityZone,Tags[?Key==`Name`].Value|[0]]' \
+  --output table
+  
 
 ### List Worker Nodes
 ```
